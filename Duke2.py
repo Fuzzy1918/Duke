@@ -1,6 +1,10 @@
 import numpy as np
 from gensim.models import Word2Vec
-
+import tkinter as tk 
+from tkinter import *
+from PIL import Image, ImageTk
+import os
+import random as rd
 
 def time():
     from datetime import datetime
@@ -22,7 +26,6 @@ def time():
     print("Current Time =", current_time)
     return current_time
 
-
 def date():
     from datetime import date
 
@@ -31,9 +34,8 @@ def date():
     d2 = today.strftime("%B %d %Y")
     print(d2)
     return d2
-
     
-def weather():    
+def temperature():    
     # importing requests and json
     import requests
     # base URL
@@ -70,6 +72,41 @@ def weather():
         # showing the error message
         print("Error in the HTTP request")
         
+def climate():
+    # importing requests and json
+    import requests
+    # base URL
+    BASE_URL = "https://api.openweathermap.org/data/2.5/weather?"
+    CITY = "01970"
+    API_KEY = "349c8c17598c5154250288cdf4d57c88"
+    # upadting the URL
+    URL = BASE_URL + "q=" + CITY + "&appid=" + API_KEY
+    # HTTP request
+    response = requests.get(URL)
+    # checking the status code of the request
+    if response.status_code == 200:
+       # getting data in the json format
+       data = response.json()
+       # getting the main dict block
+       main = data['main']
+       # getting temperature
+       temperature = main['temp']
+       # getting the humidity
+       humidity = main['humidity']
+       # getting the pressure
+       pressure = main['pressure']
+       # weather report
+       report = data['weather']
+       print(f"{CITY:-^30}")
+       print(f"Temperature: {temperature}")
+       print(f"Humidity: {humidity}")
+       print(f"Pressure: {pressure}")
+       print(f"Weather Report: {report[0]['description']}")
+       cool = report[0]['description']
+       return str(cool)
+    else:
+        # showing the error message
+        print("Error in the HTTP request")  
         
 class NeuralNetwork():
     
@@ -109,7 +146,6 @@ class NeuralNetwork():
         output = self.sigmoid(np.dot(inputs, self.synaptic_weights))
         return output
 
-
 def convert(lst): 
     return (lst.split()) 
     import speech_recognition as sr
@@ -128,15 +164,16 @@ def convert(lst):
             return h
         except sr.UnknownValueError:
                 print("Could not understand audio")
-                print(sentence.lower())
-            
+                print(sentence.lower())       
 
 def speech_recognition():
     #prediction word used for the model
     import speech_recognition as sr
     recognizer = sr.Recognizer()
     
+    
     with sr.Microphone() as source:
+        recognizer.adjust_for_ambient_noise(source, duration = 1)
         print("Stay Silent...")
         recognizer.adjust_for_ambient_noise(source)
         print("Say your command")
@@ -146,90 +183,66 @@ def speech_recognition():
             print("Recognizing...")
 #recognized words is saved as sentence 
             sentence = recognizer.recognize_google(audio)
+            sentence = sentence.lower()
             h =  convert(sentence)
             print(h) 
             return h
         except sr.UnknownValueError:
                 print("Could not understand audio")
-                print(sentence.lower())
-        
- 
-def main(h):
-    # Initialize the neural networks
-    neural_network_weather = NeuralNetwork()
-    neural_network_date = NeuralNetwork()
-    neural_network_time = NeuralNetwork()
-
-    #generates our random starting weights 
-    print("Random starting synaptic weights: ")
-    print(neural_network_weather.synaptic_weights)
-
-    training_inputs = np.array([[-0.03627917,0.10471522,-0.10026854,0.02875868],
-                           [0.09668428,0.0538136,0.03402844,0.04554762],
-                           [0.01395842,-0.00782125,-0.08180993,0.00389336],
-                           [0.01395842,-0.00782125,-0.08180993,0.00389336],
-                          [-0.08209962,0.16797704,-0.1086292,-0.07613142],
-                          [-0.11225612,0.01542065,-0.0529591,-0.00025066],
-                          [-0.00880101,-0.08572748,-0.08237889,0.01552423],
-                          [0.11972316,0.02438944,0.07279091,0.12142652],
-                          [0.12085818,0.12155448,0.12040057,-0.11162022],
-                          [0.07069848,-0.0070207,-0.03462103,-0.16239952],
-                          [-0.06209321,0.00553475,0.00353729,0.12363361],
-                          [-0.00554066,-0.05375038,-0.00671253,-0.05054714],
-                          [0.04562913,-0.00251329,0.05240403,0.08733993],
-                          [-0.01105306,-0.08799928,0.05996143,0.10991833],
-                          [-0.06909497,-0.00376274,-0.00750561,-0.06259944],
-                          [0.03833304,-0.03537022,0.10527875,-0.14467834],
-                          [0.03892542,1.3263664,0.3591809,-1.0351576]])
+                return ['nothing']
     
-    weather_outputs = np.array([[1,0,0,0,1,1,1,0,0,0,0,0,0,1,0,0,0]]).T
+def main(h, neural_network_weather, neural_network_date, neural_network_time):
 
-    date_outputs = np.array([[0,1,0,0,0,0,0,1,1,1,0,0,0,0,1,0,0]]).T
-    
-    time_outputs = np.array([[0,0,1,1,0,0,0,0,0,0,1,1,1,0,0,1,0]]).T
-
-    # Train the neural networks
-    neural_network_weather.train(training_inputs, weather_outputs, 10000)
-    neural_network_date.train(training_inputs, date_outputs, 10000)
-    neural_network_time.train(training_inputs, time_outputs, 10000)
-
-    print("\nSynaptic weights after training: ")
-    print("\nsynaptic weights for weather after training: ")
-    print(neural_network_weather.synaptic_weights)
-    print("\nsynaptic weights for date after training: ")
-    print(neural_network_date.synaptic_weights)
-    print("\nsynaptic weights for time after training: ")
-    print(neural_network_time.synaptic_weights)
     
     weather_sum = 0.0
     date_sum = 0.0
     time_sum = 0.0
+    game_sum = 0.0
+    joke_sum = 0.0
+    idk_sum = 0.0
+    game_whitelist = [0]
+    joke_whitelist = [0]
+    time_whitelist = [0]
+    date_whitelist = [0]
+    weather_whitelist = [0]
+    idk_whitelist = [0]
     loops = 0           
     i = 0  
     
     while (i < len(h)):
         element = h[i]
-        print(element)
+        if (element == 'time'):
+            {
+                time_whitelist.append(1000)
+            }
+        if (element == 'game'):
+            {
+                game_whitelist.append(1000)
+            }
+        if (element == 'joke'):
+            {
+                joke_whitelist.append(1000)
+            }
+        if (element == 'weather'):
+            {
+                weather_whitelist.append(1000)
+            }
+        if (element == 'date'):
+            {
+                date_whitelist.append(1000)
+            }
+        if (element == 'nothing'):
+            {
+               idk_whitelist.append(1000)
+            }
         i += 1
         Array = Word2Vec.load("C:\\Users\\19787\\Desktop\\Duke\\model1").wv.__getitem__(element)
-        print(Array)
-
+        
     
-       
         weather_pred = neural_network_weather.predict(np.array([Array])) 
         date_pred = neural_network_date.predict(np.array([Array]))
         time_pred = neural_network_time.predict(np.array([Array]))
-         
-        print("Word: ", h)
-        print("Word array:", Array)
-        print("\n Output data: ")
-        print("\n Weather thinks?: ")
-        print(weather_pred)
-        print("\n Date thinks?: ")
-        print(date_pred)
-        print("\n Time thinks?: ")
-        print(time_pred)
-        print("\n")
+        
     
         if(weather_pred > 0.5):
     
@@ -248,40 +261,73 @@ def main(h):
              time_sum = time_sum - time_pred
              
         loops += 1  
-        
-       
-       
-        
-    sums = [weather_sum, date_sum, time_sum]
-    return sums   
+            
+    
+    weather_sum += weather_whitelist[-1]
+    date_sum += date_whitelist[-1]
+    time_sum += time_whitelist[-1]
+    game_sum += game_whitelist[-1]
+    joke_sum += joke_whitelist[-1]
+    idk_sum += idk_whitelist[-1]
     print(weather_sum)
     print(date_sum)
     print(time_sum)
- 
-    
-    if(weather_sum > date_sum and weather_sum > time_sum and weather_sum > 0.5):
-            {   
-            weather():
-            print("\n weather wins!\n")
-            }
-    else:
-        if(date_sum > weather_sum and date_sum > time_sum and date_sum > 0.5):
-                { 
-                date():
-                print("\n date wins!\n")
-                }
-        else:
-            if(time_sum > weather_sum and time_sum > date_sum and time_sum > 0.5):
-                {
-                    time():
-                    print("\n time wins!\n")
-                }
-            else:
-                {
-                    print('\n Nobody wins!')
-                }
+    print(game_sum)
+    print(joke_sum)
+    sums = [weather_sum, date_sum, time_sum, game_sum, joke_sum, idk_sum]
+    return sums
 
+def set_button(root, Frame, bg, text):
+    listen_text = tk.StringVar()
+    listen_btn = tk.Button(root, textvariable = listen_text, command=lambda:print("nope"), font = 'Raleway', bg = bg, activebackground="red",  fg = 'black', height = 4, width = 30)
+    listen_text.set(text)
+    listen_btn.grid(columnspan = 2, rowspan = 2, column = 1, row = 3)
     
+    root.update()
+     
+def set_image_bg(root, Frame, bg):
+    image = Frame(root, height= 350, width = 400,  bg=bg)
+    image.grid(columnspan = 2, rowspan = 3, column = 3, row = 0)
+    root.update()
     
+def image_open(url):
     
+    img = Image.open(url)
+    img = ImageTk.PhotoImage(img)
+    img_label = tk.Label(image = img)
+    img_label.image = img
+    img_label.grid(columnspan = 2, rowspan = 3, column = 3, row = 0)  
+
+def game(results):
+    image_open('C:/Users/19787/Desktop/Duke/images/game1.png')
+    os.startfile("C:/Program Files (x86)/Minecraft Launcher/MinecraftLauncher.exe")
+    results.append('Duke: Launching game')
+    results.append('Launching game' )
+
+def joke(results):
+    jokebank = ['Why do we tell actors to break a leg? Because every play has a cast.', 
+                'Hear about the new restaurant called karma? There is no menu you get what you deserve',
+                'I invented a new word! Plagiarism']
+    image_open('C:/Users/19787/Desktop/Duke/images/joke1.png')
+    rand = rd.randint(0,2)
+    results.append('Duke: '+ jokebank[rand])
+    results.append(jokebank[rand])
     
+def weather(results, temperature, c):
+    image_open('C:/Users/19787/Desktop/Duke/images/weather1.png')
+    results.append('Duke: The Weather is ' + c + ' and '+ temperature + 'F')
+    results.append('The Weather is' + c + 'and' + temperature + ' degrees fahrenheit' )
+    
+def date_give(date, results):
+    image_open('C:/Users/19787/Desktop/Duke/images/date1.png')
+    results.append('Duke: the date is ' + date)
+    results.append('The date is ' + date)
+    
+def time_give(time, results):
+    image_open('C:/Users/19787/Desktop/Duke/images/time1.png')
+    results.append('Duke: the current time is ' + time)
+    results.append('The current time is ' + time)
+    
+def rejected(results):
+    results.append("Duke: I didn't understand that")
+    results.append("I didn't understand that")
