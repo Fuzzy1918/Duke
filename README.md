@@ -1,4 +1,4 @@
-# Duke---Proposal
+# Duke
 
 The Goal of “Duke” is to create an
 Artificial Intelligence that is able to
