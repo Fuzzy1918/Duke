@@ -9,7 +9,7 @@ english, then translated into a way
 Duke can analyze what is being said
 and perform the necessary action to
 fulfill the command. Possible actions
-Duke could perform will be to give
+Duke can perform is to give
 reports about local weather, display
 time and date, play games, and can
 tell jokes.
